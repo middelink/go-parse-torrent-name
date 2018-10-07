@@ -91,6 +91,7 @@ var testData = []string{
 	"The.Secret.Life.of.Pets.2016.HDRiP.AAC-LC.x264-LEGi0N",
 	"[HorribleSubs] Clockwork Planet - 10 [480p].mkv",
 	"[HorribleSubs] Detective Conan - 862 [1080p].mkv",
+	"thomas.and.friends.s19e09_s20e14.convert.hdtv.x264-w4f[eztv].mkv",
 }
 
 func TestParser(t *testing.T) {

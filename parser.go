@@ -58,15 +58,15 @@ func Parse(filename string) (*TorrentInfo, error) {
 	//fmt.Printf("filename %q\n", filename)
 
 	var startIndex, endIndex = 0, len(filename)
+	cleanName := strings.Replace(filename, "_", " ", -1)
 	for _, pattern := range patterns {
-		cleanName := strings.Replace(filename, "_", " ", -1)
 		matches := pattern.re.FindStringSubmatch(cleanName)
 		if len(matches) == 0 {
 			continue
 		}
 		//fmt.Printf("  %s: pattern:%q match:%#v\n", pattern.name, pattern.re, matches)
 
-		index := strings.Index(filename, matches[1])
+		index := strings.Index(cleanName, matches[1])
 		if index == 0 {
 			startIndex = len(matches[1])
 			//fmt.Printf("    startIndex moved to %d [%q]\n", startIndex, filename[startIndex:endIndex])
@@ -80,16 +80,16 @@ func Parse(filename string) (*TorrentInfo, error) {
 	// Start process for title
 	//fmt.Println("  title: <internal>")
 	raw := strings.Split(filename[startIndex:endIndex], "(")[0]
-	clean := raw
-	if strings.HasPrefix(clean, "- ") {
-		clean = raw[2:]
+	cleanName = raw
+	if strings.HasPrefix(cleanName, "- ") {
+		cleanName = raw[2:]
 	}
-	if strings.ContainsRune(clean, '.') && !strings.ContainsRune(clean, ' ') {
-		clean = strings.Replace(clean, ".", " ", -1)
+	if strings.ContainsRune(cleanName, '.') && !strings.ContainsRune(cleanName, ' ') {
+		cleanName = strings.Replace(cleanName, ".", " ", -1)
 	}
-	clean = strings.Replace(clean, "_", " ", -1)
-	//clean = re.sub('([\[\(_]|- )$', '', clean).strip()
-	setField(tor, "title", raw, strings.TrimSpace(clean))
+	cleanName = strings.Replace(cleanName, "_", " ", -1)
+	//cleanName = re.sub('([\[\(_]|- )$', '', cleanName).strip()
+	setField(tor, "title", raw, strings.TrimSpace(cleanName))
 
 	return tor, nil
 }
