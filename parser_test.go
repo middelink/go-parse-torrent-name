@@ -92,45 +92,47 @@ var testData = []string{
 	"[HorribleSubs] Clockwork Planet - 10 [480p].mkv",
 	"[HorribleSubs] Detective Conan - 862 [1080p].mkv",
 	"thomas.and.friends.s19e09_s20e14.convert.hdtv.x264-w4f[eztv].mkv",
+	"Blade.Runner.2049.2017.1080p.WEB-DL.DD5.1.H264-FGT-[rarbg.to]",
+	"2012(2009).1080p.Dual Audio(Hindi+English) 5.1 Audios",
+	"2012 (2009) 1080p BrRip x264 - 1.7GB - YIFY",
+	"2012 2009 x264 720p Esub BluRay 6.0 Dual Audio English Hindi GOPISAHI",
 }
 
 func TestParser(t *testing.T) {
 	for i, fname := range testData {
-		tor, err := Parse(fname)
-		if err != nil {
-			t.Errorf("test %v: parser error:\n  %v", i, err)
-			continue
-		}
-
-		goldenFilename := filepath.Join("testdata", fmt.Sprintf("golden_file_%03d.json", i))
-
-		if *updateGoldenFiles {
-			buf, err := json.MarshalIndent(tor, "", "  ")
+		t.Run(fmt.Sprintf("golden_file_%03d", i), func(t *testing.T) {
+			tor, err := Parse(fname)
 			if err != nil {
-				t.Fatalf("error marshaling result: %v", err)
+				t.Fatalf("test %v: parser error:\n  %v", i, err)
 			}
 
-			if err = ioutil.WriteFile(goldenFilename, buf, 0644); err != nil {
-				t.Fatalf("unable to update golden file: %v", err)
+			goldenFilename := filepath.Join("testdata", fmt.Sprintf("golden_file_%03d.json", i))
+
+			if *updateGoldenFiles {
+				buf, err := json.MarshalIndent(tor, "", "  ")
+				if err != nil {
+					t.Fatalf("error marshaling result: %v", err)
+				}
+
+				if err = ioutil.WriteFile(goldenFilename, buf, 0644); err != nil {
+					t.Fatalf("unable to update golden file: %v", err)
+				}
 			}
-		}
 
-		buf, err := ioutil.ReadFile(goldenFilename)
-		if err != nil {
-			t.Errorf("error loading golden file: %v", err)
-			continue
-		}
+			buf, err := ioutil.ReadFile(goldenFilename)
+			if err != nil {
+				t.Fatalf("error loading golden file: %v", err)
+			}
 
-		var want TorrentInfo
-		err = json.Unmarshal(buf, &want)
-		if err != nil {
-			t.Errorf("error unmarshalling golden file %v: %v", goldenFilename, err)
-			continue
-		}
+			var want TorrentInfo
+			err = json.Unmarshal(buf, &want)
+			if err != nil {
+				t.Fatalf("error unmarshalling golden file %v: %v", goldenFilename, err)
+			}
 
-		if !reflect.DeepEqual(*tor, want) {
-			t.Errorf("test %v: wrong result for %q\nwant:\n  %v\ngot:\n  %v", i, fname, want, *tor)
-			continue
-		}
+			if !reflect.DeepEqual(*tor, want) {
+				t.Fatalf("test %v: wrong result for %q\nwant:\n  %v\ngot:\n  %v", i, fname, want, *tor)
+			}
+		})
 	}
 }
